@@ -38,55 +38,47 @@ public class RgsScenarioTest {
     @Test
     public void test() {
 
-        String cookieOkXPath = "//div[@class='btn btn-default text-uppercase']";
-        waitUtilElementToBeVisible(By.xpath(cookieOkXPath));
-        waitUtilElementToBeClickable(webDriver.findElement(By.xpath(cookieOkXPath)));
-        WebElement cookieOk = webDriver.findElement(By.xpath(cookieOkXPath));
-        cookieOk.click();
-
         String frameCovidXPath = "//iframe[@class='flocktory-widget']";
         String buttonFrameCovidCloseXPath = "//button[@class= 'CloseButton']";
         closeFrame(By.xpath(frameCovidXPath), By.xpath(buttonFrameCovidCloseXPath));
 
+        String cookieOkXPath = "//div[@class='btn btn-default text-uppercase']";
+        WebElement cookieOk = waitUtilElementToBeVisible(By.xpath(cookieOkXPath));
+        waitUtilElementToBeClickable(cookieOk);
+        cookieOk.click();
+
         String menuXPath = "//a[@class='hidden-xs' and contains(text(),'Меню')]";
-        waitUtilElementToBeVisible(By.xpath(menuXPath));
-        WebElement dropdownMenu = webDriver.findElement(By.xpath(menuXPath));
+        WebElement dropdownMenu = waitUtilElementToBeVisible(By.xpath(menuXPath));
         waitUtilElementToBeClickable(dropdownMenu);
         dropdownMenu.click();
 
         String companiesXPath = "//a[contains(text(),'Компаниям')]";
-        waitUtilElementToBeVisible(By.xpath(companiesXPath));
-        WebElement buttonCompanies = webDriver.findElement(By.xpath(companiesXPath));
+        WebElement buttonCompanies = waitUtilElementToBeVisible(By.xpath(companiesXPath));
         waitUtilElementToBeClickable(buttonCompanies);
         buttonCompanies.click();
 
         switchToNewWindow(By.xpath("//a[contains(text(),'Страхование здоровья')]"));
 
         String voluntaryMedicalInsuranceXPath = "//a[contains(@class, 'adv-analytics-navigation') and contains(@href, '/health/dms')]";
-        waitUtilElementToBeVisible(By.xpath(voluntaryMedicalInsuranceXPath));
-        WebElement voluntaryMedicalInsurance = webDriver.findElement(By.xpath(voluntaryMedicalInsuranceXPath));
+        WebElement voluntaryMedicalInsurance = waitUtilElementToBeVisible(By.xpath(voluntaryMedicalInsuranceXPath));
         waitUtilElementToBeClickable(voluntaryMedicalInsurance);
         voluntaryMedicalInsurance.click();
 
         String titleVoluntaryMedicalInsuranceXPath = "//h1[@class='content-document-header']";
-        waitUtilElementToBeVisible(By.xpath(titleVoluntaryMedicalInsuranceXPath));
-        WebElement titleVoluntaryMedicalInsurance = webDriver.findElement(By.xpath(titleVoluntaryMedicalInsuranceXPath));
+        WebElement titleVoluntaryMedicalInsurance = waitUtilElementToBeVisible(By.xpath(titleVoluntaryMedicalInsuranceXPath));
         String titleVoluntaryMedicalInsuranceMassage = "Заголовок \"Добровольное медецинское страхование\", отсутствует";
         Assert.assertEquals(titleVoluntaryMedicalInsuranceMassage, "Добровольное медицинское страхование",
                 titleVoluntaryMedicalInsurance.getText());
 
         String sendRequestXPath = "//a[contains(@class, 'btn btn-default text-uppercase')]";
-        waitUtilElementToBeVisible(By.xpath(sendRequestXPath));
-        WebElement buttonSendRequest = webDriver.findElement(By.xpath(sendRequestXPath));
+        WebElement buttonSendRequest = waitUtilElementToBeVisible(By.xpath(sendRequestXPath));
         waitUtilElementToBeClickable(buttonSendRequest);
         buttonSendRequest.click();
 
         String dialogWindowXPath = "//div[@class='modal-dialog']";
         String titleDialogWindowXPath = "//b[@data-bind = 'text: options.title']";
-        waitUtilElementToBeVisible(webDriver.findElement(By.xpath(dialogWindowXPath)));
-        WebElement dialogWindow = webDriver.findElement(By.xpath(dialogWindowXPath));
-        waitUtilElementToBeVisible(By.xpath(titleDialogWindowXPath));
-        WebElement titleDialogWindow = webDriver.findElement(By.xpath(titleDialogWindowXPath));
+        WebElement dialogWindow = waitUtilElementToBeVisible(By.xpath(dialogWindowXPath));
+        WebElement titleDialogWindow = waitUtilElementToBeVisible(By.xpath(titleDialogWindowXPath));
         Assert.assertTrue("Диалоговое окно заявки на ДМС не открылось", dialogWindow.isDisplayed()
                 && titleDialogWindow.getText().contains("Заявка на добровольное медицинское страхование"));
 
@@ -121,9 +113,8 @@ public class RgsScenarioTest {
         String fieldDateXPath = "//input[@name= 'ContactDate']";
         WebElement fieldDate = webDriver.findElement(By.xpath(fieldDateXPath));
         fieldDate.click();
-        String fieldSelectDateXPath = "//td[@class='datepicker-day' and contains(text(),'30')]";
-        WebElement fieldSelectDate = webDriver.findElement(By.xpath(fieldSelectDateXPath));
-        fieldSelectDate.click();
+        fieldDate.sendKeys("25.10.2021");
+        fieldDate.sendKeys(Keys.ENTER);
 
         String fieldCommentXPath = "//textarea[@class= 'popupTextarea form-control']";
         WebElement fieldComment = webDriver.findElement(By.xpath(fieldCommentXPath));
@@ -133,18 +124,13 @@ public class RgsScenarioTest {
         WebElement checkBoxIAccept = webDriver.findElement(By.xpath(checkBoxIAcceptXPath));
         checkBoxIAccept.click();
 
-        checkErrorMessageAtField(fieldLastName, "*");
-        checkErrorMessageAtField(fieldName, "*");
-        checkErrorMessageAtField(fieldDate, "*");
-        checkErrorMessageAtField(fieldPhone, "*");
-
         String buttonSendXPath = "//button[@id='button-m']";
         WebElement buttonSend = webDriver.findElement(By.xpath(buttonSendXPath));
         buttonSend.click();
 
-        String checkEmailXPath = "//span[@class='validation-error-text' and contains(text(), 'Введите адрес электронной почты')]";
+        WebElement emailError = fieldEmail.findElement(By.xpath("./..//span[@class='validation-error-text']"));
         String emailErrorMessage = "Пропускает возможность заполнить поле не валидным значением";
-        Assert.assertEquals(emailErrorMessage, "Введите адрес электронной почты", webDriver.findElement(By.xpath(checkEmailXPath)).getText());
+        Assert.assertEquals(emailErrorMessage, "Введите адрес электронной почты", emailError.getText());
 
     }
 
@@ -153,7 +139,7 @@ public class RgsScenarioTest {
         webDriver.quit();
     }
 
-    public void switchToNewWindow(By byPath) {
+    private void switchToNewWindow(By byPath) {
         final Set<String> oldWindowsSet = webDriver.getWindowHandles();
         webDriverWait.until(ExpectedConditions.elementToBeClickable(byPath)).click();
 
@@ -180,8 +166,8 @@ public class RgsScenarioTest {
         webDriverWait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
-    private void waitUtilElementToBeVisible(By locator) {
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+    private WebElement waitUtilElementToBeVisible(By locator) {
+        return webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
     private void waitUtilElementToBeVisible(WebElement element) {
